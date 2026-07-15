@@ -35,6 +35,8 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - Create a new subfolder only when the user explicitly requests a new deck or the intended new taxonomy is unambiguous.
 
 4. Design the cards.
+   - Before writing, enumerate every distinct knowledge point the user asks to add or supplies for conversion as a coverage checklist, including required facts, steps, conditions, exceptions, formulas, notation, and examples.
+   - Treat every checklist item as mandatory. Split the material into as many focused cards as needed, but never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
    - Put one testable recall target in each note. Split unrelated facts into separate cards.
    - Preserve the user's language and exact technical notation.
    - Prefer `basic`. Use `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
@@ -66,7 +68,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    python scripts/yanki_card.py validate --file "/path/to/card.md"
    ```
 
-   Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Report the vault-relative path and inferred card type.
+   Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card; if any item is missing, create or repair cards and repeat verification before reporting completion. Report the vault-relative path and inferred card type.
 
 7. Do not trigger Anki or AnkiWeb synchronization unless the user asks. Writing the Markdown note completes the default task. If useful, mention that the user can run `Yanki: Sync flashcard notes to Anki` in Obsidian.
 
