@@ -208,9 +208,9 @@ def render_card(spec: dict[str, Any]) -> str:
         raise YankiError("Card 'front' must not be empty")
 
     if card_type == "basic":
-        if not back:
-            raise YankiError("A basic card requires 'back'")
-        body = f"{front}\n\n---\n\n{back}"
+        body = front
+        if back:
+            body += f"\n\n---\n\n{back}"
     elif card_type == "reversed":
         if not back:
             raise YankiError("A reversed card requires 'back'")
@@ -224,8 +224,11 @@ def render_card(spec: dict[str, Any]) -> str:
             raise YankiError("A type-answer response must be a single line")
         body = f"{front}\n\n_{back}_"
     elif card_type == "cloze":
-        if not re.search(r"~~.+?~~", front, flags=re.DOTALL):
+        clozes = re.findall(r"~~(.*?)~~", front, flags=re.DOTALL)
+        if not clozes:
             raise YankiError("A cloze card requires at least one ~~cloze deletion~~ in 'front'")
+        if any("\n" in cloze or "\r" in cloze for cloze in clozes):
+            raise YankiError("Yanki cloze deletions cannot span multiple lines or block elements")
         body = front
         cloze_back = back or extra
         if cloze_back:
@@ -304,7 +307,10 @@ def merged_spec(args: argparse.Namespace) -> dict[str, Any]:
 
 def infer_type(body: str) -> tuple[str, list[str]]:
     warnings: list[str] = []
-    if re.search(r"~~.+?~~", body, flags=re.DOTALL):
+    clozes = re.findall(r"~~(.*?)~~", body, flags=re.DOTALL)
+    if any("\n" in cloze or "\r" in cloze for cloze in clozes):
+        warnings.append("Yanki cloze deletions cannot span multiple lines or block elements")
+    if any("\n" not in cloze and "\r" not in cloze for cloze in clozes):
         return "cloze", warnings
     separators = list(re.finditer(r"(?m)^---\s*$", body))
     if len(separators) >= 2:
@@ -314,7 +320,7 @@ def infer_type(body: str) -> tuple[str, list[str]]:
     if separators:
         return "basic", warnings
     last = next((line.strip() for line in reversed(body.splitlines()) if line.strip()), "")
-    if re.fullmatch(r"_[^_\n]+_", last):
+    if re.fullmatch(r"(?:_[^_\n]+_|\*[^*\n]+\*)", last):
         return "type-answer", warnings
     warnings.append("No structural cue found; Yanki will create a front-only Basic note")
     return "basic-front-only", warnings

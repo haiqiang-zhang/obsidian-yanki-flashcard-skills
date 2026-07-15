@@ -18,6 +18,12 @@ What is the serial fraction in Amdahl's law?
 The part of a workload that cannot be parallelized.
 ```
 
+A file without a note-type cue becomes a front-only Basic note. Use this only when an empty back is intentional:
+
+```markdown
+This entire note appears on the front.
+```
+
 ### Basic and reversed, with optional extra
 
 Use two consecutive thematic breaks between the two directions. A third break introduces content shown on the back of both generated cards.
@@ -38,7 +44,7 @@ A connection-oriented transport protocol.
 
 ### Type in the answer
 
-Make the final statement emphasized. Keep the answer short and exact.
+Make the final statement emphasized with `*answer*` or `_answer_`. Keep the answer short, exact, and on one line.
 
 ```markdown
 TCP expands to:
@@ -48,7 +54,7 @@ _Transmission Control Protocol_
 
 ### Cloze
 
-Use Markdown strikethrough for each deletion:
+Use Markdown strikethrough for each deletion. Multiple deletions create multiple cards by default:
 
 ```markdown
 Amdahl's law says speedup is limited by the ~~serial fraction~~.
@@ -68,6 +74,62 @@ Prefix clozed content with a one- or two-digit number to group deletions on the 
 
 Add a thematic break after cloze content for extra back-of-card material.
 
+Keep every cloze deletion on one line. Yanki does not support clozing across multiple lines or block elements. Images, math, and other inline syntax may be clozed when they remain inline.
+
+Deleting an implicitly numbered cloze can shift review history between the remaining clozes. Prefer explicit numbering for notes likely to change, and use Anki's **Tools → Empty Cards...** after removing a cloze that left an empty card.
+
+## Rich Markdown content
+
+Yanki supports normal Markdown inside card content. Preserve useful structure rather than converting it to plain prose.
+
+### Images
+
+Use Obsidian embeds or standard Markdown images. Keep referenced assets resolvable from the vault; do not move, copy, or download images unless the user asks.
+
+```markdown
+What structure is shown?
+
+---
+
+![[tcp-header.png]]
+```
+
+```markdown
+![TCP header](attachments/tcp-header.png)
+```
+
+### Tables
+
+```markdown
+Compare TCP and UDP.
+
+---
+
+| Property | TCP | UDP |
+| --- | --- | --- |
+| Connection | Yes | No |
+| Delivery guarantee | Yes | No |
+```
+
+### Lists
+
+```markdown
+What are the three steps?
+
+---
+
+1. Inspect the input.
+2. Transform it.
+3. Verify the output.
+```
+
+Bullet lists are also supported:
+
+```markdown
+- First fact
+- Second fact
+```
+
 ## Tags and metadata
 
 Yanki reads tags from Obsidian properties, not inline body tags:
@@ -86,7 +148,7 @@ Card front
 Card back
 ```
 
-Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, Obsidian wikilinks, math, and supported embeds may be used inside card content.
+Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, Obsidian wikilinks, math, tables, lists, and supported embeds may be used inside card content.
 
 ## Important behavior
 

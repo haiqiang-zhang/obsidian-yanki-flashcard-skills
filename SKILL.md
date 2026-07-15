@@ -40,8 +40,9 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - Treat every checklist item as mandatory. Split the material into as many focused cards as needed, but never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
    - Put one testable recall target in each note. Split unrelated facts into separate cards.
    - Preserve the user's language and exact technical notation.
-   - Prefer `basic`. Use `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
-   - Read [references/yanki-markdown.md](references/yanki-markdown.md) before using a non-basic type or advanced syntax.
+   - Prefer `basic`. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
+   - Use Yanki-supported Markdown when it improves a card: Obsidian or standard Markdown images, tables, bullet or numbered lists, math, wikilinks, and other inline formatting. Preserve user-provided rich Markdown instead of flattening it to prose.
+   - Read [references/yanki-markdown.md](references/yanki-markdown.md) before using a non-basic type, image/embed, table, list, math, or advanced syntax. Follow its Cloze numbering, hint, and single-line restrictions.
    - Do not add `noteId`; Yanki manages it during sync.
 
 5. Write each card with the bundled script. Prefer a JSON spec for multiline or punctuation-heavy content:
