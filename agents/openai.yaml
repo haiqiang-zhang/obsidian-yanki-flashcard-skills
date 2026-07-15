@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Obsidian Yanki Cards"
+  short_description: "Add cards only through the Obsidian Yanki plugin"
+  default_prompt: "Use $add-yanki-flashcards to turn this content into focused cards and add them through the Obsidian Yanki plugin."
