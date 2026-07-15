@@ -132,7 +132,7 @@ Bullet lists are also supported:
 
 ## Tags and metadata
 
-Yanki reads tags from Obsidian properties, not inline body tags:
+Omit tags and tag frontmatter by default. Add tags only when the user explicitly specifies their values; never infer or generate tags from the card subject or nearby cards. If tags are requested, Yanki reads them from Obsidian properties, not inline body tags:
 
 ```markdown
 ---

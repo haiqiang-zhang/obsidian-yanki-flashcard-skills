@@ -43,6 +43,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - Prefer `basic`. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
    - Use Yanki-supported Markdown when it improves a card: Obsidian or standard Markdown images, tables, bullet or numbered lists, math, wikilinks, and other inline formatting. Preserve user-provided rich Markdown instead of flattening it to prose.
    - Read [references/yanki-markdown.md](references/yanki-markdown.md) before using a non-basic type, image/embed, table, list, math, or advanced syntax. Follow its Cloze numbering, hint, and single-line restrictions.
+   - Do not add tags unless the user explicitly specifies the tag values. Never infer tags from the subject, generate them automatically, or copy them from nearby cards. If the user asks for tags without naming them, ask which tags to use before writing.
    - Do not add `noteId`; Yanki manages it during sync.
 
 5. Write each card with the bundled script. Prefer a JSON spec for multiline or punctuation-heavy content:
@@ -53,8 +54,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
      "title": "Amdahl's law speedup limit",
      "type": "basic",
      "front": "What limits parallel speedup according to Amdahl's law?",
-     "back": "The serial fraction of the workload.",
-     "tags": ["parallelism"]
+     "back": "The serial fraction of the workload."
    }
    ```
 
