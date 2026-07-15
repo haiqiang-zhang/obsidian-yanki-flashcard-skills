@@ -28,11 +28,12 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    Read the returned watched folders and existing deck directories. The source of truth is `.obsidian/plugins/yanki/data.json`, especially `folders` and `ignoreFolderNotes`.
 
 3. Choose the corresponding deck folder.
+   - Treat the returned deck directories as a hierarchy. Use each full vault-relative path when comparing candidates; watched folders are roots, and their descendant directories are nested decks.
    - Honor an explicit folder or deck from the user.
-   - Otherwise match the material's subject to existing folder names and nearby cards. Read only a few representative filenames or cards when needed.
-   - Remember that the note's parent folder determines its Anki deck and nested folders create nested decks.
-   - If exactly one folder is clearly appropriate, proceed directly. If several are equally plausible, ask the user instead of guessing.
-   - Create a new subfolder only when the user explicitly requests a new deck or the intended new taxonomy is unambiguous.
+   - Otherwise match the material's subject against existing full folder paths and nearby cards. Read only a few representative filenames or cards when needed.
+   - Prefer the most specific existing subfolder that clearly matches. Never place cards in a broad parent when a suitable descendant folder exists.
+   - If exactly one existing folder is clearly appropriate, proceed directly. If several are equally plausible, ask the user to choose instead of guessing.
+   - If no existing folder clearly matches, stop before writing any card. Propose a new subfolder with its complete vault-relative parent path and ask whether to create it. Do not create the folder or pass `--create-folder` until the user explicitly confirms that path. If the user declines, stop without writing cards.
 
 4. Design the cards.
    - Before writing, enumerate every distinct knowledge point the user asks to add or supplies for conversion as a coverage checklist, including required facts, steps, conditions, exceptions, formulas, notation, and examples.
@@ -60,7 +61,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    python scripts/yanki_card.py add --spec /tmp/card.json
    ```
 
-   The script refuses paths outside Yanki's watched folders, avoids overwriting files, detects same-folder duplicate card bodies, and avoids names that Yanki would treat as ignored folder notes. Pass `--create-folder` only under the rule in step 3.
+   The script refuses paths outside Yanki's watched folders, avoids overwriting files, detects same-folder duplicate card bodies, and avoids names that Yanki would treat as ignored folder notes. Pass `--create-folder` only after the explicit user confirmation required by step 3.
 
 6. Verify every created file.
 
