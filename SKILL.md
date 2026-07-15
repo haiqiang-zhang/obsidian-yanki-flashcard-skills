@@ -72,7 +72,11 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 
    Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card; if any item is missing, create or repair cards and repeat verification before reporting completion. Report the vault-relative path and inferred card type.
 
-7. Do not trigger Anki or AnkiWeb synchronization unless the user asks. Writing the Markdown note completes the default task. If useful, mention that the user can run `Yanki: Sync flashcard notes to Anki` in Obsidian.
+7. Ask about Yanki synchronization after all created files pass verification.
+   - If the user has not already made an explicit sync choice for this operation, ask whether to trigger `Yanki: Sync flashcard notes to Anki` now. Treat silence or an unclear response as no permission.
+   - Never trigger synchronization before explicit user confirmation, and never imply that writing the Markdown files means they have already synced.
+   - If the user confirms, invoke the Yanki command through an available Obsidian interface and report the actual result. If no callable Obsidian interface is available or Obsidian is not running, do not claim success; tell the user to run `Yanki: Sync flashcard notes to Anki` manually.
+   - Do not write directly to AnkiConnect or trigger AnkiWeb synchronization as a substitute.
 
 ## Failure handling
 
