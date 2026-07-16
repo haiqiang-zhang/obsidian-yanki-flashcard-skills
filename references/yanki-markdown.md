@@ -1,6 +1,6 @@
 # Yanki Markdown reference
 
-Yanki maps one Obsidian Markdown file to one Anki note. The note's parent folder determines the deck. Folder syncing is recursive, and nested folders become nested Anki decks.
+Yanki maps one Obsidian Markdown file to one Anki note. The note's parent folder determines the deck. Folder syncing is recursive, and nested folders become nested Anki decks. A watched folder value of `/` means the entire vault. A watched root with no notes directly inside it may be omitted from the Anki deck path until it contains a direct note.
 
 Official documentation: <https://github.com/kitschpatrol/yanki-obsidian>
 
@@ -98,6 +98,23 @@ What structure is shown?
 ![TCP header](attachments/tcp-header.png)
 ```
 
+### Audio and video
+
+Yanki can sync linked image, audio, and video assets into Anki media. Use Obsidian embeds or supported Markdown links:
+
+```markdown
+![[pronunciation.mp3]]
+
+![[demonstration.mp4]]
+```
+
+Honor Yanki's `sync.mediaMode` setting:
+
+- `all`: copy local and remote assets.
+- `local`: copy local assets only; this is Yanki's default.
+- `remote`: copy remote assets only.
+- `off`: do not copy media into Anki. Remote hotlinks may still render when the learner has network access.
+
 ### Tables
 
 ```markdown
@@ -130,6 +147,19 @@ Bullet lists are also supported:
 - Second fact
 ```
 
+Task lists are supported as GitHub Flavored Markdown:
+
+```markdown
+- [x] Completed step
+- [ ] Remaining step
+```
+
+### Other supported syntax
+
+Yanki also supports fenced code with syntax highlighting, GitHub-style alerts, autolinks, LaTeX math, `==highlights==`, DenDen furigana such as `{東京|とうきょう}`, and Obsidian heading or block links such as `[[Note#Heading]]` and `[[Note#^block-id]]`.
+
+Do not use `~~strikethrough~~` decoratively in a flashcard: Yanki treats it as Cloze syntax. Do not use native Anki markup such as `{{c1::answer}}`; it can conflict with Yanki's Markdown parser.
+
 ## Tags and metadata
 
 Omit tags and tag frontmatter by default. Add tags only when the user explicitly specifies their values; never infer or generate tags from the card subject or nearby cards. If tags are requested, Yanki reads them from Obsidian properties, not inline body tags:
@@ -155,3 +185,6 @@ Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, O
 - Removing a watched folder can delete Yanki-managed notes and their review history from Anki on the next sync.
 - When `ignoreFolderNotes` is enabled, a note whose basename equals its parent folder name is excluded.
 - Deleting implicitly numbered clozes can shift review history between remaining clozes. Prefer explicit numbers for cloze notes likely to change heavily.
+- Automatic sync can run almost immediately after a watched note changes. Obtain permission before writing when it is enabled.
+- `pushToAnkiWeb` makes a Yanki Sync also request a best-effort AnkiWeb sync.
+- Automatic note naming can rename created files on change or immediately before sync; report the final path.

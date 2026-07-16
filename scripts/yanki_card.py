@@ -66,7 +66,7 @@ def load_yanki(vault: Path) -> tuple[dict[str, Any], dict[str, Any], list[Path]]
     for raw in raw_folders:
         if not isinstance(raw, str) or not raw.strip():
             continue
-        folder = safe_vault_path(vault, raw)
+        folder = vault if raw.strip() == "/" else safe_vault_path(vault, raw)
         if folder not in folders:
             folders.append(folder)
     if not folders:
@@ -87,7 +87,8 @@ def safe_vault_path(vault: Path, value: str | Path) -> Path:
 
 
 def rel(vault: Path, path: Path) -> str:
-    return path.relative_to(vault).as_posix()
+    relative = path.relative_to(vault).as_posix()
+    return "/" if relative == "." else relative
 
 
 def is_within(path: Path, parent: Path) -> bool:
@@ -104,12 +105,45 @@ def deck_directories(watched: list[Path]) -> list[Path]:
         if not root.is_dir():
             continue
         result.append(root)
-        result.extend(sorted((p for p in root.rglob("*") if p.is_dir()), key=str))
+        result.extend(
+            sorted(
+                (
+                    path
+                    for path in root.rglob("*")
+                    if path.is_dir() and ".obsidian" not in path.relative_to(root).parts
+                ),
+                key=str,
+            )
+        )
     return list(dict.fromkeys(result))
 
 
 def inspect_payload(vault: Path) -> dict[str, Any]:
     manifest, settings, watched = load_yanki(vault)
+    raw_sync = settings.get("sync", {})
+    sync = raw_sync if isinstance(raw_sync, dict) else {}
+    raw_filenames = settings.get("manageFilenames", {})
+    filenames = raw_filenames if isinstance(raw_filenames, dict) else {}
+
+    auto_sync_enabled = sync.get("autoSyncEnabled")
+    if not isinstance(auto_sync_enabled, bool):
+        auto_sync_enabled = None
+    push_to_anki_web = sync.get("pushToAnkiWeb")
+    if not isinstance(push_to_anki_web, bool):
+        push_to_anki_web = None
+    media_mode = sync.get("mediaMode")
+    if media_mode not in {"all", "local", "off", "remote"}:
+        media_mode = None
+    auto_rename_trigger = filenames.get("autoRenameTrigger")
+    if auto_rename_trigger not in {"before-sync", "file-changed", "off"}:
+        auto_rename_trigger = None
+    filename_mode = filenames.get("mode")
+    if filename_mode not in {"prompt", "response"}:
+        filename_mode = None
+    max_length = filenames.get("maxLength")
+    if not isinstance(max_length, int) or isinstance(max_length, bool) or max_length <= 0:
+        max_length = None
+
     folders = []
     for folder in deck_directories(watched):
         folders.append(
@@ -125,6 +159,16 @@ def inspect_payload(vault: Path) -> dict[str, Any]:
         "yanki_version": manifest.get("version"),
         "watched_folders": [rel(vault, folder) for folder in watched],
         "ignore_folder_notes": bool(settings.get("ignoreFolderNotes", True)),
+        "sync": {
+            "auto_sync_enabled": auto_sync_enabled,
+            "media_mode": media_mode,
+            "push_to_anki_web": push_to_anki_web,
+        },
+        "filename_management": {
+            "auto_rename_trigger": auto_rename_trigger,
+            "max_length": max_length,
+            "mode": filename_mode,
+        },
         "deck_folders": folders,
         "missing_watched_folders": missing,
     }
@@ -145,7 +189,9 @@ def resolve_folder(
         raise YankiError(f"Choose a target folder with --folder. Available folders:\n{choices}")
 
     raw = Path(value).expanduser()
-    if not raw.is_absolute():
+    if value.strip() == "/":
+        exact = vault
+    elif not raw.is_absolute():
         exact = safe_vault_path(vault, raw)
         if not exact.exists() and len(raw.parts) == 1:
             matches = [
@@ -345,8 +391,14 @@ def command_add(args: argparse.Namespace) -> None:
                     raise YankiError(f"Duplicate card body already exists: {existing}")
             except UnicodeDecodeError:
                 continue
-    configured_max = settings.get("manageFilenames", {}).get("maxLength", 60)
-    max_length = configured_max if isinstance(configured_max, int) and configured_max > 0 else 60
+    raw_filename_settings = settings.get("manageFilenames", {})
+    filename_settings = raw_filename_settings if isinstance(raw_filename_settings, dict) else {}
+    configured_max = filename_settings.get("maxLength", 60)
+    max_length = (
+        configured_max
+        if isinstance(configured_max, int) and not isinstance(configured_max, bool) and configured_max > 0
+        else 60
+    )
     title = str(spec.get("title") or plain_title(str(spec.get("front", ""))))
     stem = safe_filename(title, max_length, folder, bool(settings.get("ignoreFolderNotes", True)))
     destination = unique_path(folder, stem)
