@@ -118,6 +118,17 @@ def deck_directories(watched: list[Path]) -> list[Path]:
     return list(dict.fromkeys(result))
 
 
+def sync_command_id(version: Any) -> str | None:
+    """Return the fully qualified Obsidian command ID for a Yanki version."""
+    if not isinstance(version, str):
+        return None
+    match = re.match(r"^(\d+)\.(\d+)\.(\d+)", version)
+    if not match:
+        return None
+    parsed = tuple(int(part) for part in match.groups())
+    return "yanki:sync" if parsed >= (1, 11, 7) else "yanki:sync-yanki-obsidian"
+
+
 def inspect_payload(vault: Path) -> dict[str, Any]:
     manifest, settings, watched = load_yanki(vault)
     raw_sync = settings.get("sync", {})
@@ -161,6 +172,7 @@ def inspect_payload(vault: Path) -> dict[str, Any]:
         "ignore_folder_notes": bool(settings.get("ignoreFolderNotes", True)),
         "sync": {
             "auto_sync_enabled": auto_sync_enabled,
+            "command_id": sync_command_id(manifest.get("version")),
             "media_mode": media_mode,
             "push_to_anki_web": push_to_anki_web,
         },

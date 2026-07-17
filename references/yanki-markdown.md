@@ -188,3 +188,4 @@ Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, O
 - Automatic sync can run almost immediately after a watched note changes. Obtain permission before writing when it is enabled.
 - `pushToAnkiWeb` makes a Yanki Sync also request a best-effort AnkiWeb sync.
 - Automatic note naming can rename created files on change or immediately before sync; report the final path.
+- Yanki 1.11.7 renamed the full Obsidian sync command ID from `yanki:sync-yanki-obsidian` to `yanki:sync`; existing hotkeys bound to the old ID must be re-bound. The displayed command remains `Yanki: Sync flashcard notes to Anki`.
