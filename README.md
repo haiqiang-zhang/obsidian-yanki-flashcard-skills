@@ -4,7 +4,7 @@ A Codex skill that turns your content into focused, Yanki-compatible flashcards 
 
 Requires the [Yanki Obsidian plugin](https://github.com/kitschpatrol/yanki-obsidian) with at least one watched folder configured.
 
-Compatible with Yanki 1.11.8.
+Compatible with Yanki 1.11.9.
 
 ## Install
 

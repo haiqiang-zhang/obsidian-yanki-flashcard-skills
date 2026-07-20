@@ -158,6 +158,8 @@ Task lists are supported as GitHub Flavored Markdown:
 
 Yanki also supports fenced code with syntax highlighting, GitHub-style alerts, autolinks, LaTeX math, `==highlights==`, DenDen furigana such as `{東京|とうきょう}`, and Obsidian heading or block links such as `[[Note#Heading]]` and `[[Note#^block-id]]`.
 
+Yanki 1.11.9 correctly resolves local note links, WikiLinks, and media embeds whose target filename contains a literal `?` on macOS or Linux. Preserve the literal `?` in the Markdown target and let Yanki encode the generated link. Do not create or reference such filenames on Windows, where `?` is not allowed in filenames.
+
 Do not use `~~strikethrough~~` decoratively in a flashcard: Yanki treats it as Cloze syntax. Do not use native Anki markup such as `{{c1::answer}}`; it can conflict with Yanki's Markdown parser.
 
 ## Tags and metadata
