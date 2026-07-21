@@ -160,6 +160,8 @@ Yanki also supports fenced code with syntax highlighting, GitHub-style alerts, a
 
 Yanki 1.11.9 correctly resolves local note links, WikiLinks, and media embeds whose target filename contains a literal `?` on macOS or Linux. Preserve the literal `?` in the Markdown target and let Yanki encode the generated link. Do not create or reference such filenames on Windows, where `?` is not allowed in filenames.
 
+Yanki 1.11.10 correctly resolves Obsidian heading and block anchors containing `/`, dot segments, backslashes, or Unicode, such as `[[Protocols#2G/EDGE]]`. Preserve the anchor text exactly as the user supplied it; do not rewrite its slash as a file path separator or pre-encode it.
+
 Do not use `~~strikethrough~~` decoratively in a flashcard: Yanki treats it as Cloze syntax. Do not use native Anki markup such as `{{c1::answer}}`; it can conflict with Yanki's Markdown parser.
 
 ## Tags and metadata
