@@ -1,6 +1,6 @@
 ---
 name: add-yanki-flashcards
-description: Exclusively convert user-provided material into flashcards for the Obsidian Yanki plugin by writing each card as Yanki-compatible Markdown in the appropriate watched vault folder. Use only when the user explicitly uses Yanki or asks to add cards through an existing Yanki-enabled Obsidian vault; do not use for native Anki, direct AnkiConnect, exports, or other Obsidian flashcard plugins.
+description: Exclusively convert user-provided material into flashcards for the Obsidian Yanki plugin by writing each card as Yanki-compatible Markdown in the appropriate watched vault folder, validating it, and automatically triggering Yanki sync after every successful add operation. Use only when the user explicitly uses Yanki or asks to add cards through an existing Yanki-enabled Obsidian vault; do not use for native Anki, direct AnkiConnect, exports, or other Obsidian flashcard plugins.
 ---
 
 # Add Yanki Flashcards
@@ -28,8 +28,10 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    ```
 
    Read the returned watched folders, deck directories, `sync`, and `filename_management` values. The source of truth is `.obsidian/plugins/yanki/data.json`; never modify it.
-   - If `sync.auto_sync_enabled` is `true`, stop before writing and explain that creating files may immediately trigger Yanki Sync. Ask whether to proceed; mention that AnkiWeb may also be triggered when `sync.push_to_anki_web` is `true`. Write only after explicit confirmation.
-   - If `sync.auto_sync_enabled` is `null`, do not assume it is off. Ask the user to confirm Yanki's Automatic sync setting before writing.
+   - Do not ask for separate sync consent. Invoking this skill to add cards authorizes the Yanki synchronization required by step 7 for that add operation.
+   - If `sync.auto_sync_enabled` is `true`, creating files may trigger an earlier background sync. Proceed without pausing, then still run the explicit post-validation sync in step 7 so the completed add operation ends with a sync.
+   - If `sync.push_to_anki_web` is `true`, the Yanki sync may also attempt AnkiWeb synchronization. Preserve that setting and report it; never change Yanki's configuration.
+   - If either sync setting is `null`, do not guess its value or block the write. Follow the explicit sync procedure in step 7 and report only the result that can be observed.
 
 3. Choose the corresponding deck folder.
    - Treat the returned deck directories as a filesystem hierarchy. `/` means the entire vault. Use each full vault-relative path when comparing candidates.
@@ -78,14 +80,13 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 
    Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card; if any item is missing, create or repair cards and repeat verification before reporting completion. If `filename_management.auto_rename_trigger` is `file-changed`, re-check the path after Yanki has processed the file; if it was renamed, find the unique same-folder note with the identical card body and validate that final path. Report the final vault-relative path and inferred card type.
 
-7. Ask about Yanki synchronization after all created files pass verification.
-   - When `sync.auto_sync_enabled` is `false` and the user has not already made an explicit sync choice for this operation, ask whether to trigger `Yanki: Sync flashcard notes to Anki` now. Treat silence or an unclear response as no permission.
-   - When `sync.auto_sync_enabled` is `true` and the user authorized the write in step 2, do not request a redundant manual sync. State that automatic sync may have run, but do not claim success without an observable result.
-   - Include in any sync consent question that Yanki will also attempt AnkiWeb synchronization when `sync.push_to_anki_web` is `true`.
-   - Never trigger synchronization before explicit user confirmation, and never imply that writing the Markdown files means they have already synced.
-   - If the user confirms, invoke the Yanki command through an available Obsidian interface and report the actual result. When the interface requires a command ID, use the exact `sync.command_id` returned by `inspect`: Yanki 1.11.7 and later use `yanki:sync`; versions through 1.11.6 use `yanki:sync-yanki-obsidian`. Do not try the legacy ID on a current installation merely because it used to work.
+7. Synchronize automatically after all created files pass verification.
+   - Do not ask whether to sync. Invoke `Yanki: Sync flashcard notes to Anki` through an available Obsidian interface immediately after each successful add operation, even when Yanki may already have run background automatic sync.
+   - Report the actual command result. Never imply that writing the Markdown files alone means they synced, and never claim success from an unobserved background sync.
+   - When `sync.push_to_anki_web` is `true`, state that the invoked Yanki sync also attempts AnkiWeb synchronization, but distinguish the locally observed Yanki result from independently verified AnkiWeb completion.
+   - When the interface requires a command ID, use the exact `sync.command_id` returned by `inspect`: Yanki 1.11.7 and later use `yanki:sync`; versions through 1.11.6 use `yanki:sync-yanki-obsidian`. Do not try the legacy ID on a current installation merely because it used to work.
    - If `sync.command_id` is `null`, do not guess from an unparseable or missing plugin version. Invoke the command by its displayed name only if the interface supports name lookup; otherwise tell the user to run it manually.
-   - If no callable Obsidian interface is available or Obsidian is not running, do not claim success; tell the user to run `Yanki: Sync flashcard notes to Anki` manually.
+   - If the command fails, no callable Obsidian interface is available, or Obsidian is not running, do not claim success; report that automatic sync could not complete and tell the user to run `Yanki: Sync flashcard notes to Anki` manually.
    - If `filename_management.auto_rename_trigger` is `before-sync`, re-check and validate the final paths after any observed sync before reporting them.
    - Do not write directly to AnkiConnect or trigger AnkiWeb synchronization as a substitute.
 
