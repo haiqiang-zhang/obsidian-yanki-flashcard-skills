@@ -139,9 +139,6 @@ def inspect_payload(vault: Path) -> dict[str, Any]:
     auto_sync_enabled = sync.get("autoSyncEnabled")
     if not isinstance(auto_sync_enabled, bool):
         auto_sync_enabled = None
-    push_to_anki_web = sync.get("pushToAnkiWeb")
-    if not isinstance(push_to_anki_web, bool):
-        push_to_anki_web = None
     media_mode = sync.get("mediaMode")
     if media_mode not in {"all", "local", "off", "remote"}:
         media_mode = None
@@ -174,7 +171,6 @@ def inspect_payload(vault: Path) -> dict[str, Any]:
             "auto_sync_enabled": auto_sync_enabled,
             "command_id": sync_command_id(manifest.get("version")),
             "media_mode": media_mode,
-            "push_to_anki_web": push_to_anki_web,
         },
         "filename_management": {
             "auto_rename_trigger": auto_rename_trigger,
