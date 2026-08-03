@@ -162,6 +162,8 @@ Yanki 1.11.9 correctly resolves local note links, WikiLinks, and media embeds wh
 
 Yanki 1.11.10 correctly resolves Obsidian heading and block anchors containing `/`, dot segments, backslashes, or Unicode, such as `[[Protocols#2G/EDGE]]`. Preserve the anchor text exactly as the user supplied it; do not rewrite its slash as a file path separator or pre-encode it.
 
+Yanki 1.12.0 keeps the same card formats, `data.json` keys, media modes, and `yanki:sync` command ID. It adds searchable declarative settings on Obsidian 1.13 and later; continue reading the stored values from `data.json` rather than relying on settings UI labels.
+
 Do not use `~~strikethrough~~` decoratively in a flashcard: Yanki treats it as Cloze syntax. Do not use native Anki markup such as `{{c1::answer}}`; it can conflict with Yanki's Markdown parser.
 
 ## Tags and metadata
@@ -189,7 +191,7 @@ Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, O
 - Removing a watched folder can delete Yanki-managed notes and their review history from Anki on the next sync.
 - When `ignoreFolderNotes` is enabled, a note whose basename equals its parent folder name is excluded.
 - Deleting implicitly numbered clozes can shift review history between remaining clozes. Prefer explicit numbers for cloze notes likely to change heavily.
-- Automatic sync can run almost immediately after a watched note changes. Obtain permission before writing when it is enabled.
+- Automatic sync can run almost immediately after a watched note changes. When this skill adds cards, proceed under the user's add request and still perform the explicit post-validation sync required by the main workflow.
 - `pushToAnkiWeb` makes a Yanki Sync also request a best-effort AnkiWeb sync.
 - Automatic note naming can rename created files on change or immediately before sync; report the final path.
 - Yanki 1.11.7 renamed the full Obsidian sync command ID from `yanki:sync-yanki-obsidian` to `yanki:sync`; existing hotkeys bound to the old ID must be re-bound. The displayed command remains `Yanki: Sync flashcard notes to Anki`.
