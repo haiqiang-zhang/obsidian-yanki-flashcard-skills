@@ -164,6 +164,8 @@ Yanki 1.11.10 correctly resolves Obsidian heading and block anchors containing `
 
 Yanki 1.12.0 keeps the same card formats, `data.json` keys, media modes, and `yanki:sync` command ID. It adds searchable declarative settings on Obsidian 1.13 and later; continue reading the stored values from `data.json` rather than relying on settings UI labels.
 
+Yanki 1.12.1 fixes media filename hash collisions. Distinct local assets with the same size and modification time, and distinct remote assets with identical response metadata, now receive distinct Anki media filenames. Keep each intended asset reference unchanged; do not rename, duplicate, or otherwise disambiguate assets as a workaround.
+
 Do not use `~~strikethrough~~` decoratively in a flashcard: Yanki treats it as Cloze syntax. Do not use native Anki markup such as `{{c1::answer}}`; it can conflict with Yanki's Markdown parser.
 
 ## Tags and metadata
