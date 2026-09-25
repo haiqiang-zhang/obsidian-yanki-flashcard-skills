@@ -188,6 +188,14 @@ Card back
 
 Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, Obsidian wikilinks, math, tables, lists, and supported embeds may be used inside card content.
 
+## Compatibility and runtime troubleshooting
+
+Verified against [Yanki 1.12.2](https://github.com/kitschpatrol/yanki-obsidian/releases/tag/1.12.2), which bundles the Yanki 3.0.0 core. Card syntax, watched-folder mapping, stored settings keys, and the `yanki:sync` command remain unchanged. The plugin manifest requires Obsidian app version 1.9.12 or newer.
+
+The standalone Yanki 3.0.0 CLI/library requires Node.js 22.18 or newer. That is not a system Node.js prerequisite for this Obsidian-plugin workflow; do not install or invoke the standalone CLI as a substitute.
+
+If sync reports an unexplained `TypeError` even though the Obsidian app appears current, ask the user to run `Show debug info` and check the **installer version** separately. Upstream requires an installer version of at least 1.6.5: in-app updates do not update the underlying Electron/Chromium runtime. If the installer is older, direct the user to Obsidian's [installer update instructions](https://obsidian.md/help/updates#Installer+updates). Do not reinstall Obsidian or change Yanki settings automatically.
+
 ## Important behavior
 
 - Removing a watched folder can delete Yanki-managed notes and their review history from Anki on the next sync.

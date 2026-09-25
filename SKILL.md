@@ -15,24 +15,28 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 
 ## Workflow
 
-1. Identify the target vault.
+1. Check whether the requested content already exists. This is the mandatory first step for the entire add operation, before creating any folder or card or invoking sync.
+   - First resolve the target vault and inspect Yanki using read-only operations so the duplicate check covers the correct folders.
    - By default, treat the agent's current working directory as the vault root. Require `.obsidian` directly inside that directory.
-   - Do not scan the filesystem, Obsidian's vault registry, environment variables, recent vaults, or other known vault paths.
+   - Do not scan the filesystem, Obsidian's vault registry, environment variables, recent vaults, or other known vault paths to locate a vault.
    - Use `--vault "/path/to/vault"` only when the user explicitly supplies a different vault path.
    - If the current working directory is not a Yanki-enabled vault root, stop and ask the user to open the agent at that vault root or provide its path.
 
-2. Inspect Yanki before every write.
+   Inspect the current Yanki configuration:
 
    ```bash
    python "<skill-dir>/scripts/yanki_card.py" inspect
    ```
 
    Read the returned watched folders, deck directories, `sync`, and `filename_management` values. The source of truth is `.obsidian/plugins/yanki/data.json`; never modify it.
-   - Do not ask for separate sync consent. Invoking this skill to add cards authorizes the Yanki synchronization required by step 7 for that add operation.
-   - If `sync.auto_sync_enabled` is `true`, creating files may trigger an earlier background sync. Proceed without pausing, then still run the explicit post-validation sync in step 7 so the completed add operation ends with a sync.
-   - If `sync.auto_sync_enabled` is `null`, do not guess its value or block the write. Follow the explicit sync procedure in step 7 and report only the command result that can be observed.
 
-3. Choose the corresponding deck folder.
+   - Search filenames and Markdown bodies recursively across **all configured watched folders**, including their subfolders, for each requested question or knowledge point. `/` means the entire vault. Do not limit the search to the intended destination folder.
+   - Use distinctive phrases, key terms, and formulas to find candidates, then read them to compare the actual question and knowledge content. The same content may have a different title, wording, formatting, or card type; exact text equality is not required. A shared subject alone is not a duplicate.
+   - Complete this check for the entire requested batch before writing anything. If any matching content already exists, **pause the whole add operation**, show the existing card's vault-relative path and the matching content, and ask the user what to do next. Wait for their answer before continuing.
+   - Do not silently skip duplicates, add the remaining cards, merge or update existing cards, or reword content to bypass the check. Offer choices such as keeping the existing card and skipping that item, explicitly creating another copy, or discussing an update; do not choose for the user. An update or merge requires separate explicit direction and is not part of this add-only workflow.
+   - Continue only when no duplicates are found or the user has explicitly resolved the disclosed duplicates. If the search cannot be completed, explain the limitation and ask for direction instead of treating it as a clean result.
+
+2. Choose the corresponding deck folder.
    - Treat the returned deck directories as a filesystem hierarchy. `/` means the entire vault. Use each full vault-relative path when comparing candidates.
    - Do not assume every watched root becomes an Anki deck. A watched root without direct notes may be omitted from the Anki deck path; the created note's actual parent folder controls its deck.
    - Honor an explicit folder or deck from the user.
@@ -41,9 +45,9 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - If exactly one existing folder is clearly appropriate, proceed directly. If several are equally plausible, ask the user to choose instead of guessing.
    - If no existing folder clearly matches, stop before writing any card. Propose a new subfolder with its complete vault-relative parent path and ask whether to create it. Do not create the folder or pass `--create-folder` until the user explicitly confirms that path. If the user declines, stop without writing cards.
 
-4. Design the cards.
+3. Design the cards.
    - Before writing, enumerate every distinct knowledge point the user asks to add or supplies for conversion as a coverage checklist, including required facts, steps, conditions, exceptions, formulas, notation, and examples.
-   - Treat every checklist item as mandatory. Split the material into as many focused cards as needed, but never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
+   - Treat every checklist item as mandatory unless the user explicitly chose to keep an existing card instead in step 1; record that card as covering the item. Split the material into as many focused cards as needed, but never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
    - Put one testable recall target in each note. Split unrelated facts into separate cards.
    - Preserve the user's language and exact technical notation.
    - Prefer `basic`. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
@@ -53,7 +57,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - Do not add tags unless the user explicitly specifies the tag values. Never infer tags from the subject, generate them automatically, or copy them from nearby cards. If the user asks for tags without naming them, ask which tags to use before writing.
    - Do not add `noteId`; Yanki manages it during sync.
 
-5. Write each card with the bundled script. Prefer a JSON spec for multiline or punctuation-heavy content:
+4. Write each card with the bundled script. Prefer a JSON spec for multiline or punctuation-heavy content:
 
    ```json
    {
@@ -69,18 +73,20 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    python "<skill-dir>/scripts/yanki_card.py" add --spec /tmp/card.json
    ```
 
-   The script refuses paths outside Yanki's watched folders, avoids overwriting files, detects same-folder duplicate card bodies, and avoids names that Yanki would treat as ignored folder notes. Pass `--create-folder` only after the explicit user confirmation required by step 3.
+   The script refuses paths outside Yanki's watched folders, avoids overwriting files, detects same-folder duplicate card bodies, and avoids names that Yanki would treat as ignored folder notes. Its exact-body duplicate check is only a backstop, not a replacement for step 1. If it detects a duplicate, stop adding cards and apply the same pause-and-ask rule. Never pass `--allow-duplicate` unless the user explicitly chose to create another copy of that disclosed duplicate. Pass `--create-folder` only after the explicit user confirmation required by step 2.
 
-6. Verify every created file.
+5. Verify every created file.
 
    ```bash
    python "<skill-dir>/scripts/yanki_card.py" validate --file "/path/to/card.md"
    ```
 
-   Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card; if any item is missing, create or repair cards and repeat verification before reporting completion. If `filename_management.auto_rename_trigger` is `file-changed`, re-check the path after Yanki has processed the file; if it was renamed, find the unique same-folder note with the identical card body and validate that final path. Report the final vault-relative path and inferred card type.
+   Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card or an existing card the user explicitly chose to keep in step 1; if any item is missing, create or repair cards and repeat verification before reporting completion. If `filename_management.auto_rename_trigger` is `file-changed`, re-check the path after Yanki has processed the file; if it was renamed, find the unique same-folder note with the identical card body and validate that final path. Report the final vault-relative path and inferred card type.
 
-7. Synchronize automatically after all created files pass verification.
+6. Synchronize automatically after all created files pass verification.
+   - The duplicate pause in step 1 takes precedence: do not invoke sync while awaiting the user's decision. If the user chooses to keep existing cards and no new cards are created, report that outcome without invoking sync.
    - Do not ask whether to sync. Invoke `Yanki: Sync flashcard notes to Anki` through an available Obsidian interface immediately after each successful add operation, even when Yanki may already have run background automatic sync.
+   - If `sync.auto_sync_enabled` is `true`, creating files may trigger an earlier background sync. After the duplicate check is resolved, proceed without separate sync consent, then still run this explicit post-validation sync. If the value is `null`, do not guess it or block the write; follow this explicit sync procedure.
    - Report the actual command result. Never imply that writing the Markdown files alone means they synced, and never claim success from an unobserved background sync.
    - When the interface requires a command ID, use the exact `sync.command_id` returned by `inspect`: Yanki 1.11.7 and later use `yanki:sync`; versions through 1.11.6 use `yanki:sync-yanki-obsidian`. Do not try the legacy ID on a current installation merely because it used to work.
    - If `sync.command_id` is `null`, do not guess from an unparseable or missing plugin version. Invoke the command by its displayed name only if the interface supports name lookup; otherwise tell the user to run it manually.
@@ -92,6 +98,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 
 - If Yanki is missing or has no watched folders, stop and tell the user what must be configured in Obsidian.
 - If Obsidian CLI is unavailable, continue with the filesystem script; the script does not require Obsidian to be running.
+- If Yanki sync fails with an unexplained `TypeError` despite an up-to-date Obsidian app, follow [the runtime troubleshooting guidance](references/yanki-markdown.md#compatibility-and-runtime-troubleshooting) to distinguish the app version from the installer version.
 - If a required media asset cannot sync under the current Yanki `mediaMode`, explain the exact mismatch instead of silently dropping the media.
 - Never edit Yanki's `data.json`, delete cards, move watched folders, or overwrite an existing note as part of adding a card.
 - Treat the Obsidian Markdown files as the source of truth. Do not write directly to AnkiConnect for this workflow.
