@@ -1,4 +1,4 @@
 interface:
   display_name: "Add Obsidian Yanki Cards"
   short_description: "Add and automatically sync Obsidian Yanki cards"
-  default_prompt: "Use $add-yanki-flashcards to turn this content into focused Obsidian Yanki cards, validate them, and sync them automatically."
+  default_prompt: "Use $add-yanki-flashcards to turn this content into Obsidian Yanki cards, combining same-topic material from this request into one card where practical, then validate and sync them automatically."

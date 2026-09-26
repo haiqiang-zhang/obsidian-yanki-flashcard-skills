@@ -5,7 +5,7 @@ description: Exclusively convert user-provided material into flashcards for the 
 
 # Add Yanki Flashcards
 
-Create focused cards in the Yanki-enabled Obsidian vault where the agent is running. Read watched folders at runtime; never hardcode a personal vault path or assume the folder is named `ANKI`.
+Create topic-coherent cards in the Yanki-enabled Obsidian vault where the agent is running, preferring one card for same-topic material within each add request. Read watched folders at runtime; never hardcode a personal vault path or assume the folder is named `ANKI`.
 
 Resolve `<skill-dir>` to the directory containing this `SKILL.md`, and invoke the bundled script by its absolute path. Keep the working directory at the target vault root.
 
@@ -47,10 +47,12 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 
 3. Design the cards.
    - Before writing, enumerate every distinct knowledge point the user asks to add or supplies for conversion as a coverage checklist, including required facts, steps, conditions, exceptions, formulas, notation, and examples.
-   - Treat every checklist item as mandatory unless the user explicitly chose to keep an existing card instead in step 1; record that card as covering the item. Split the material into as many focused cards as needed, but never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
-   - Put one testable recall target in each note. Split unrelated facts into separate cards.
+   - Treat every checklist item as mandatory unless the user explicitly chose to keep an existing card instead in step 1; record that card as covering the item. Never drop, silently omit, or generalize away a requested knowledge point to reduce the card count.
+   - Within the same add request, group material by topic and prefer **one card per topic**, not one card per knowledge point. Keep a topic's related definitions, properties, conditions, formulas, and examples together; multiple checklist items may map to the same card. This groups new material only and does not authorize merging existing notes or bypassing step 1.
+   - Use an overarching question or a few related subquestions on the front, with a complete, structured answer on the back. For example, a request covering binary search's prerequisites, procedure, and complexity should normally become one card covering all three.
+   - Split only when the user explicitly requests separate cards, the topics are genuinely distinct, or combining the content would make a single card clearly unwieldy to review. Multiple facts alone are not a reason to split. If splitting one topic is necessary, briefly explain why.
    - Preserve the user's language and exact technical notation.
-   - Prefer `basic`. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
+   - Prefer `basic`, especially for grouped same-topic material so it is reviewed as one card. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
    - Use Yanki-supported Markdown when it improves a card: images, audio, video, tables, task/bullet/numbered lists, fenced code, alerts, math, highlights, furigana, wikilinks, and other inline formatting. Preserve user-provided rich Markdown instead of flattening it to prose.
    - Read [references/yanki-markdown.md](references/yanki-markdown.md) before using a non-basic type, image/embed, table, list, math, or advanced syntax. Follow its Cloze numbering, hint, and single-line restrictions.
    - Before using local or remote media, compare it with `sync.media_mode`. If the value is `null`, ask the user to verify Yanki's media setting. Do not promise that an asset will appear in Anki when its media category is not enabled. Stop and ask whether to proceed if a required local asset will not be copied; never change Yanki settings yourself.
