@@ -52,6 +52,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    - Use an overarching question or a few related subquestions on the front, with a complete, structured answer on the back. For example, a request covering binary search's prerequisites, procedure, and complexity should normally become one card covering all three.
    - Split only when the user explicitly requests separate cards, the topics are genuinely distinct, or combining the content would make a single card clearly unwieldy to review. Multiple facts alone are not a reason to split. If splitting one topic is necessary, briefly explain why.
    - Preserve the user's language and exact technical notation.
+   - Make the card body self-contained: filenames are not displayed on Anki cards. Do not put essential context only in the filename or rely on note/PDF embeds or plugin-rendered diagrams to supply it; follow the rendering limits in the Markdown reference.
    - Prefer `basic`, especially for grouped same-topic material so it is reviewed as one card. Use front-only `basic` when a card intentionally has no back, `reversed` only for genuinely symmetric facts, `type-answer` for a short exact response, and `cloze` when context is essential.
    - Use Yanki-supported Markdown when it improves a card: images, audio, video, tables, task/bullet/numbered lists, fenced code, alerts, math, highlights, furigana, wikilinks, and other inline formatting. Preserve user-provided rich Markdown instead of flattening it to prose.
    - Read [references/yanki-markdown.md](references/yanki-markdown.md) before using a non-basic type, image/embed, table, list, math, or advanced syntax. Follow its Cloze numbering, hint, and single-line restrictions.
@@ -82,6 +83,8 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
    ```bash
    python "<skill-dir>/scripts/yanki_card.py" validate --file "/path/to/card.md"
    ```
+
+   The script checks paths and simple syntax cues; it does not run Yanki's Markdown parser or prove the rendered Anki result. Check the intended card type against the Markdown reference when syntax cues conflict.
 
    Re-read the final file if the card contains math, code, embeds, or unusual Markdown. Map every coverage-checklist item to at least one created card or an existing card the user explicitly chose to keep in step 1; if any item is missing, create or repair cards and repeat verification before reporting completion. If `filename_management.auto_rename_trigger` is `file-changed`, re-check the path after Yanki has processed the file; if it was renamed, find the unique same-folder note with the identical card body and validate that final path. Report the final vault-relative path and inferred card type.
 

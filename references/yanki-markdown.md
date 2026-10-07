@@ -4,11 +4,13 @@ Yanki maps one Obsidian Markdown file to one Anki note. The note's parent folder
 
 Official documentation: <https://github.com/kitschpatrol/yanki-obsidian>
 
+Authoring reference: [official Yanki Obsidian agent skill, version 1.13.0](https://github.com/kitschpatrol/yanki-obsidian/blob/1.13.0/skills/yanki-obsidian/SKILL.md). Use it for syntax and rendering details; this skill's duplicate preflight, same-topic grouping, explicit-tags-only rule, and automatic post-add sync remain the workflow requirements.
+
 ## Note types
 
 ### Basic
 
-Separate front and back with one thematic break:
+Separate front and back with one thematic break. Leave blank lines around `---` so it is not parsed as a heading underline; extra breaks do not create additional notes:
 
 ```markdown
 What is the serial fraction in Amdahl's law?
@@ -44,7 +46,7 @@ A connection-oriented transport protocol.
 
 ### Type in the answer
 
-Make the final statement emphasized with `*answer*` or `_answer_`. Keep the answer short, exact, and on one line.
+Make the final statement emphasized with `*answer*` or `_answer_`, with a visible prompt before it. Keep the answer plain text, short, exact, and on one line. Do not include thematic breaks in the body or visible content after the answer; YAML frontmatter delimiters are fine.
 
 ```markdown
 TCP expands to:
@@ -72,7 +74,7 @@ Prefix clozed content with a one- or two-digit number to group deletions on the 
 ~~1 TCP~~ is a ~~1 connection-oriented~~ transport protocol.
 ```
 
-Add a thematic break after cloze content for extra back-of-card material.
+Add a thematic break after cloze content for extra back-of-card material. Cloze deletions must be before the first thematic break. A leading one- or two-digit number can be interpreted as a cloze number; to hide the full answer "12 months", write `~~1 12 months~~`.
 
 Keep every cloze deletion on one line. Yanki does not support clozing across multiple lines or block elements. Images, math, and other inline syntax may be clozed when they remain inline.
 
@@ -80,7 +82,13 @@ Deleting an implicitly numbered cloze can shift review history between the remai
 
 ## Rich Markdown content
 
-Yanki supports normal Markdown inside card content. Preserve useful structure rather than converting it to plain prose.
+Yanki supports normal Markdown inside card content. Preserve useful structure rather than converting it to plain prose. Yanki uses its own Markdown renderer, so an Obsidian preview is not proof of the Anki result.
+
+### Rendering limits
+
+- Note embeds such as `![[Some note]]` or `![[Some note#Heading]]` and PDF embeds become links, not embedded note text or PDF pages. Include the required question, explanation, or source excerpt in the card body itself.
+- Mermaid fences render as code rather than diagrams, and plugin features such as Dataview are not automatically rendered. Preserve the needed meaning in supported Markdown or use an existing supported image; do not assume every Obsidian callout variant works.
+- The vault's **Strict line breaks** setting controls paragraph newlines. Use blank lines for separate paragraphs or explicit Markdown hard breaks when required.
 
 ### Images
 
@@ -186,15 +194,15 @@ Card front
 Card back
 ```
 
-Do not create or modify `noteId`; Yanki owns that property. Standard Markdown, Obsidian wikilinks, math, tables, lists, and supported embeds may be used inside card content.
+Do not create or modify `noteId`; Yanki owns that property. Do not invent `deck`, `deckName`, or `type` frontmatter: the folder and Markdown syntax control those values, not these properties. The bundled script's JSON `type` field chooses the generated syntax; it is not a frontmatter field. Standard Markdown, Obsidian wikilinks, math, tables, lists, and supported embeds may be used inside card content.
 
 ## Compatibility and runtime troubleshooting
 
-Verified against [Yanki 1.12.2](https://github.com/kitschpatrol/yanki-obsidian/releases/tag/1.12.2), which bundles the Yanki 3.0.0 core. Card syntax, watched-folder mapping, stored settings keys, and the `yanki:sync` command remain unchanged. The plugin manifest requires Obsidian app version 1.9.12 or newer.
+Verified against [Yanki 1.13.0](https://github.com/kitschpatrol/yanki-obsidian/releases/tag/1.13.0), which bundles the Yanki 3.1.0 core and adds an official agent skill. Card syntax, watched-folder mapping, stored settings keys, and the `yanki:sync` command remain unchanged. Upstream requires both the Obsidian app and installer versions to be 1.9.12 or newer.
 
-The standalone Yanki 3.0.0 CLI/library requires Node.js 22.18 or newer. That is not a system Node.js prerequisite for this Obsidian-plugin workflow; do not install or invoke the standalone CLI as a substitute.
+This workflow uses the core bundled with the Obsidian plugin. The standalone Yanki CLI/library's Node.js requirements are not a system Node.js prerequisite here; do not install or invoke the standalone CLI as a substitute.
 
-If sync reports an unexplained `TypeError` even though the Obsidian app appears current, ask the user to run `Show debug info` and check the **installer version** separately. Upstream requires an installer version of at least 1.6.5: in-app updates do not update the underlying Electron/Chromium runtime. If the installer is older, direct the user to Obsidian's [installer update instructions](https://obsidian.md/help/updates#Installer+updates). Do not reinstall Obsidian or change Yanki settings automatically.
+If sync reports an unexplained `TypeError` even though the Obsidian app appears current, ask the user to open **Settings → General** or run `Show debug info` and check the **installer version** separately. In-app updates do not update the underlying Electron/Chromium runtime. If the installer is older than 1.9.12, direct the user to Obsidian's [installer update instructions](https://obsidian.md/help/updates#Installer+updates). Do not reinstall Obsidian or change Yanki settings automatically.
 
 ## Important behavior
 
