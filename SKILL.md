@@ -104,6 +104,7 @@ Use this skill only for the Obsidian plugin whose manifest ID is `yanki`. Requir
 - If Yanki is missing or has no watched folders, stop and tell the user what must be configured in Obsidian.
 - If Obsidian CLI is unavailable, continue with the filesystem script; the script does not require Obsidian to be running.
 - If Yanki sync fails with an unexplained `TypeError` despite an up-to-date Obsidian app, follow [the runtime troubleshooting guidance](references/yanki-markdown.md#compatibility-and-runtime-troubleshooting) to distinguish the app version from the installer version.
+- For AnkiConnect API or filtered-deck sync errors, follow [the compatibility guidance](references/yanki-markdown.md#ankiconnect-and-filtered-deck-errors). Report the observed error; do not delete or recreate cards or decks as a workaround.
 - If a required media asset cannot sync under the current Yanki `mediaMode`, explain the exact mismatch instead of silently dropping the media.
 - Never edit Yanki's `data.json`, delete cards, move watched folders, or overwrite an existing note as part of adding a card.
 - Treat the Obsidian Markdown files as the source of truth. Do not write directly to AnkiConnect for this workflow.

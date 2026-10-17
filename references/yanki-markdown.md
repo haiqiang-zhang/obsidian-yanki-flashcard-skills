@@ -4,7 +4,7 @@ Yanki maps one Obsidian Markdown file to one Anki note. The note's parent folder
 
 Official documentation: <https://github.com/kitschpatrol/yanki-obsidian>
 
-Authoring reference: [official Yanki Obsidian agent skill, version 1.13.0](https://github.com/kitschpatrol/yanki-obsidian/blob/1.13.0/skills/yanki-obsidian/SKILL.md). Use it for syntax and rendering details; this skill's duplicate preflight, same-topic grouping, explicit-tags-only rule, and automatic post-add sync remain the workflow requirements.
+Authoring reference: [official Yanki Obsidian agent skill, version 1.14.1](https://github.com/kitschpatrol/yanki-obsidian/blob/1.14.1/skills/yanki-obsidian/SKILL.md). Use it for syntax and rendering details; this skill's duplicate preflight, same-topic grouping, explicit-tags-only rule, and automatic post-add sync remain the workflow requirements.
 
 ## Note types
 
@@ -198,11 +198,18 @@ Do not create or modify `noteId`; Yanki owns that property. Do not invent `deck`
 
 ## Compatibility and runtime troubleshooting
 
-Verified against [Yanki 1.13.0](https://github.com/kitschpatrol/yanki-obsidian/releases/tag/1.13.0), which bundles the Yanki 3.1.0 core and adds an official agent skill. Card syntax, watched-folder mapping, stored settings keys, and the `yanki:sync` command remain unchanged. Upstream requires both the Obsidian app and installer versions to be 1.9.12 or newer.
+Verified against [Yanki 1.14.1](https://github.com/kitschpatrol/yanki-obsidian/releases/tag/1.14.1), which bundles the Yanki 3.2.1 core. Card syntax, watched-folder mapping, stored settings keys, and the `yanki:sync` command remain unchanged. Upstream requires both the Obsidian app and installer versions to be 1.9.12 or newer.
+
+For synchronization, upstream currently recommends Anki desktop 26.08+ and the AnkiConnect add-on 26.10.14.0+. Older versions down to Anki 2.1.55 with AnkiConnect 24.6.17.0 may work, but upstream asks users to upgrade both before reporting an issue. These are sync compatibility details, not a new preflight gate for every add request. Do not install or upgrade the user's software automatically. The AnkiConnect add-on release is distinct from the bundled `yanki-connect` library version or the API protocol version.
 
 This workflow uses the core bundled with the Obsidian plugin. The standalone Yanki CLI/library's Node.js requirements are not a system Node.js prerequisite here; do not install or invoke the standalone CLI as a substitute.
 
 If sync reports an unexplained `TypeError` even though the Obsidian app appears current, ask the user to open **Settings → General** or run `Show debug info` and check the **installer version** separately. In-app updates do not update the underlying Electron/Chromium runtime. If the installer is older than 1.9.12, direct the user to Obsidian's [installer update instructions](https://obsidian.md/help/updates#Installer+updates). Do not reinstall Obsidian or change Yanki settings automatically.
+
+### AnkiConnect and filtered-deck errors
+
+- Yanki 1.14.x handles HTTP error responses from newer AnkiConnect releases without automatically treating every rejection as Anki being unreachable. Preserve the observed permission/API error instead of assuming Anki is closed; use the plugin's result rather than making direct AnkiConnect calls.
+- Yanki 1.14.1 fixes filtered-deck discovery and original-deck lookup, including nested filtered decks, for AnkiConnect 26.x. If an older Yanki installation reports these errors, suggest updating Yanki before retrying through its sync command. Keep existing `noteId` values, source paths, and namespace unchanged; do not empty, delete, or recreate filtered decks or notes as an automatic workaround. Let Yanki manage their original-deck mapping and cleanup.
 
 ## Important behavior
 
