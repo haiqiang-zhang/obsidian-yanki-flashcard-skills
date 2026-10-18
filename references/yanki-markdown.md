@@ -6,6 +6,20 @@ Official documentation: <https://github.com/kitschpatrol/yanki-obsidian>
 
 Authoring reference: [official Yanki Obsidian agent skill, version 1.14.1](https://github.com/kitschpatrol/yanki-obsidian/blob/1.14.1/skills/yanki-obsidian/SKILL.md). Use it for syntax and rendering details; this skill's duplicate preflight, same-topic grouping, explicit-tags-only rule, and automatic post-add sync remain the workflow requirements.
 
+## Question-side examples
+
+For a grouped binary-search card, use this front:
+
+> 二分查找适用的前提是什么？查找过程和时间复杂度分别是什么？
+
+Put the prerequisites, procedure, complexity, and any worked example on the back. A front such as “二分查找要求有序顺序表，时间复杂度为 O(log n)，请说明其条件和复杂度” already supplies the requested answers.
+
+Check for clues across grouped subquestions: “OSI 模型有哪些层？网络层的作用是什么？” reveals part of the first answer. Use “OSI 模型有哪些层？各层的主要作用是什么？” and keep the layer names and functions together on the back.
+
+For Cloze, `~~Paris~~ is the capital of France. Paris is on the Seine.` leaves the target visible elsewhere. Move the second sentence to the back. A hint must not restate the hidden answer or an equivalent answer.
+
+Keep necessary givens: when asking for transmission delay, the message length and link rate belong on the front. When asking the learner to recall the formula, the formula belongs on the back. Preserve all original multiple-choice options without marking, highlighting, or explaining the correct option on the question side.
+
 ## Note types
 
 ### Basic
@@ -20,7 +34,7 @@ What is the serial fraction in Amdahl's law?
 The part of a workload that cannot be parallelized.
 ```
 
-A file without a note-type cue becomes a front-only Basic note. Use this only when an empty back is intentional:
+A file without a note-type cue becomes a front-only Basic note. Use this only when the user explicitly requests a card without an answer side:
 
 ```markdown
 This entire note appears on the front.
